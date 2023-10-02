@@ -111,8 +111,8 @@ class Connection:
             logging.info("--> Sending MRD_MESSAGE_CONFIG_TEXT (2)")
             self.socket.send(constants.MrdMessageIdentifier.pack(constants.MRD_MESSAGE_CONFIG_TEXT))
             contents_with_nul = '%s\0' % contents # Add null terminator
-            self.socket.send(constants.MrdMessageLength.pack(len(contents_with_nul.encode())))
-            self.socket.send(contents_with_nul.encode())
+            self.socket.send(constants.MrdMessageLength.pack(len(contents_with_nul)))
+            self.socket.send(contents_with_nul)
 
     def read_config_text(self):
         logging.info("<-- Received MRD_MESSAGE_CONFIG_TEXT (2)")
@@ -133,9 +133,8 @@ class Connection:
         with self.lock:
             logging.info("--> Sending MRD_MESSAGE_METADATA_XML_TEXT (3)")
             self.socket.send(constants.MrdMessageIdentifier.pack(constants.MRD_MESSAGE_METADATA_XML_TEXT))
-            contents_with_nul = '%s\0' % contents # Add null terminator
-            self.socket.send(constants.MrdMessageLength.pack(len(contents_with_nul.encode())))
-            self.socket.send(contents_with_nul.encode())
+            self.socket.send(constants.MrdMessageLength.pack(len(contents)))
+            self.socket.send(contents)
 
     def read_metadata(self):
         logging.info("<-- Received MRD_MESSAGE_METADATA_XML_TEXT (3)")
@@ -212,22 +211,17 @@ class Connection:
     #   Attribute length (   8 bytes, uint_64       )
     #   Attribute data   (  variable, char          )
     #   Image data       (  variable, variable      )
-    def send_image(self, images):
+    def send_image(self, head, attribute, imageData):
         with self.lock:
-            if not isinstance(images, list):
-                images = [images]
-
-            logging.info("--> Sending MRD_MESSAGE_ISMRMRD_IMAGE (1022) (%d images)", len(images))
-            for image in images:
-                self.sentImages += 1
-                self.socket.send(constants.MrdMessageIdentifier.pack(constants.MRD_MESSAGE_ISMRMRD_IMAGE))
-                image.serialize_into(self.socket.send)
+            logging.info("--> Sending MRD_MESSAGE_ISMRMRD_IMAGE (1022)")
+            self.sentImages += 1
 
             # Explicit version of serialize_into() for more verbose debugging
-            # self.socket.send(image.getHead())
-            # self.socket.send(constants.MrdMessageAttribLength.pack(len(image.attribute_string)))
-            # self.socket.send(bytes(image.attribute_string, 'utf-8'))
-            # self.socket.send(bytes(image.data))
+            self.socket.send(constants.MrdMessageIdentifier.pack(constants.MRD_MESSAGE_ISMRMRD_IMAGE))
+            self.socket.send(head)
+            self.socket.send(constants.MrdMessageAttribLength.pack(len(attribute)))
+            self.socket.send(attribute)
+            self.socket.send(imageData)
 
     def read_image(self):
         self.recvImages += 1

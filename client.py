@@ -10,32 +10,38 @@ class Client:
     Something something docstring.
     """
 
-    def __init__(self, address, port, savedatafolder):
+    def __init__(self, address, port, senddatafile):
         logging.info("Starting client and sending data to %s:%d", address, port)
         try:
             logging.debug("Opening folder...")
-            self.hf = h5py.File("/home/tunc/PycharmProjects/python-fire-server-base/save/measurement-20230929T152537.hdf5",
+            self.hf = h5py.File(senddatafile,
                            "r")
         except Exception as e:
             logging.exception(e)
 
-        self.savedatafolder = savedatafolder
+        self.senddatafile = senddatafile
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.socket.connect((address, port))
 
     def serve(self):
         logging.debug("Connecting... ")
-        for _ in range(len(self.hf.keys())):
-            self.handle(self.socket)
+        self.handle(self.socket)
 
     def handle(self, sock):
         try:
             connection = Connection(sock)
 
-            connection.send_config_file(np.array(self.hf[list(self.hf.keys())[0]]).tobytes())
-            for item in saveData:
-                hf = item
+            # send the config file / text first
+            connection.send_config_file(np.array(self.hf["Config File"]).tobytes())
+            # send the XML header second
+            connection.send_metadata(np.array(self.hf["Metadata XML"]).tobytes())
+            # send the image data until done
+            for k in range(len(self.hf.keys())-2):
+                connection.send_image(np.array(self.hf["image_" + str(k)]["header"]).tobytes(),
+                                      np.array(self.hf["image_" + str(k)]["attribute"]).tobytes(),
+                                      np.array(self.hf["image_" + str(k)]["data"]).tobytes())
+            connection.send_close()
         except Exception as e:
             logging.exception(e)
         finally:
@@ -45,15 +51,8 @@ class Client:
                 sock.shutdown(socket.SHUT_RDWR)
             except:
                 pass
+            self.hf.close()
+            logging.info("\tData at %s is sent to: %s:%d", self.senddatafile, self.socket.getsockname()[0], self.socket.getsockname()[1])
             sock.close()
             logging.info("\tSocket closed")
             # Dataset may not be closed properly if a close message is not received
-            if hf:
-                try:
-                    hf.close()
-                    logging.info("\tIncoming data was saved at %s", self.savedatafolder)
-                    #oldext = os.path.splitext()[1]
-                    #os.rename(file, file+ metadata.measurementInformation.measurementID + oldext)
-                except Exception as e:
-                    logging.exception(e)
-

@@ -15,7 +15,7 @@ defaults = {
 # TODO: ADD SEND DATA
 def main(args):
     # Create a multi-threaded dispatcher to handle incoming connections
-    client = Client(args.host, args.port, args.senddatafolder)
+    client = Client(args.host, args.port, args.senddatafile)
 
     # Trap signal interrupts (e.g. ctrl+c, SIGTERM) and gracefully stop
     def handle_signals(signum, frame):
@@ -38,7 +38,7 @@ if __name__ == '__main__':
     parser.add_argument('-H', '--host',            type=str,            help='Host')
     parser.add_argument('-v', '--verbose',         action='store_true', help='Verbose output.')
     parser.add_argument('-l', '--logfile',         type=str,            help='Path to log file')
-    parser.add_argument('-f', '--senddatafolder',  type=str,            help='Path to saved data files')
+    parser.add_argument('-f', '--senddatafile',    type=str,            help='Path to saved data files')
     parser.add_argument('-r', '--crlf',            action='store_true', help='Use Windows (CRLF) line endings')
 
     parser.set_defaults(**defaults)
@@ -61,13 +61,13 @@ if __name__ == '__main__':
         print("No logfile provided")
         logging.basicConfig(format=fmt, level=logging.WARNING)
 
-    if args.senddatafolder:
-        print("Sending files from: ", args.senddatafolder)
+    if args.senddatafile:
+        print("Sending  file: ", args.senddatafile)
 
-        if not os.path.exists(os.path.dirname(args.senddatafolder)):
-            os.makedirs(os.path.dirname(args.senddatafolder))
+        if not os.path.exists(os.path.dirname(args.senddatafile)):
+            os.makedirs(os.path.dirname(args.senddatafile))
 
-        logging.basicConfig(filename=args.senddatafolder, format=fmt, level=logging.WARNING)
+        logging.basicConfig(filename=args.senddatafile, format=fmt, level=logging.WARNING)
     else:
         print("No data folder provided")
         logging.basicConfig(format=fmt, level=logging.WARNING)
