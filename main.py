@@ -14,7 +14,6 @@ defaults = {
     'delay':          0,
 }
 
-# TODO: ADD SEND DATA
 def main(args):
     # Create a multi-threaded dispatcher to handle incoming connections
     client = Client(args)
