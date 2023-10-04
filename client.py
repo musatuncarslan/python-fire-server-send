@@ -4,25 +4,30 @@ import socket
 import logging
 import h5py
 import numpy as np
+import time
 
 class Client:
     """
     Something something docstring.
     """
 
-    def __init__(self, address, port, senddatafile):
-        logging.info("Starting client and sending data to %s:%d", address, port)
+    def __init__(self, args):
+        logging.info("Starting client and sending data to %s:%d", args.host, args.port)
         try:
             logging.debug("Opening folder...")
-            self.hf = h5py.File(senddatafile,
+            self.hf = h5py.File(args.senddatafile,
                            "r")
         except Exception as e:
             logging.exception(e)
 
-        self.senddatafile = senddatafile
+        self.delay = args.delay
+        self.senddatafile = args.senddatafile
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.socket.connect((address, port))
+        try:
+            self.socket.connect((args.host, args.port))
+        except Exception as e:
+            logging.exception(e)
 
     def serve(self):
         logging.debug("Connecting... ")
@@ -41,6 +46,7 @@ class Client:
                 connection.send_image(np.array(self.hf["image_" + str(k)]["header"]).tobytes(),
                                       np.array(self.hf["image_" + str(k)]["attribute"]).tobytes(),
                                       np.array(self.hf["image_" + str(k)]["data"]).tobytes())
+                time.sleep(self.delay)
             connection.send_close()
         except Exception as e:
             logging.exception(e)

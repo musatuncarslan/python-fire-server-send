@@ -1,21 +1,23 @@
 #!/usr/bin/python3
 
-from client import Client
 import argparse
 import logging
-import sys
 import os
 import signal
+import sys
+
+from client import Client
 
 defaults = {
-    'host':           '0.0.0.0',
+    'host':           '127.0.0.1',
     'port':           9002,
+    'delay':          0,
 }
 
 # TODO: ADD SEND DATA
 def main(args):
     # Create a multi-threaded dispatcher to handle incoming connections
-    client = Client(args.host, args.port, args.senddatafile)
+    client = Client(args)
 
     # Trap signal interrupts (e.g. ctrl+c, SIGTERM) and gracefully stop
     def handle_signals(signum, frame):
@@ -39,6 +41,7 @@ if __name__ == '__main__':
     parser.add_argument('-v', '--verbose',         action='store_true', help='Verbose output.')
     parser.add_argument('-l', '--logfile',         type=str,            help='Path to log file')
     parser.add_argument('-f', '--senddatafile',    type=str,            help='Path to saved data files')
+    parser.add_argument('-d', '--delay', type=float, help="Delay between data packets in seconds")
     parser.add_argument('-r', '--crlf',            action='store_true', help='Use Windows (CRLF) line endings')
 
     parser.set_defaults(**defaults)

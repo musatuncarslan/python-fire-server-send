@@ -11,7 +11,7 @@ class Connection:
         self.socket         = socket
         self.is_exhausted   = False
         self.sentAcqs       = 0
-        self.sentImages     = 0
+        self.sentImages     = 1
         self.sentWaveforms  = 0
         self.recvAcqs       = 0
         self.recvImages     = 0
@@ -213,15 +213,14 @@ class Connection:
     #   Image data       (  variable, variable      )
     def send_image(self, head, attribute, imageData):
         with self.lock:
-            logging.info("--> Sending MRD_MESSAGE_ISMRMRD_IMAGE (1022)")
-            self.sentImages += 1
-
+            logging.info("--> Sending MRD_MESSAGE_ISMRMRD_IMAGE (1022) for image: %d", self.sentImages)
             # Explicit version of serialize_into() for more verbose debugging
             self.socket.send(constants.MrdMessageIdentifier.pack(constants.MRD_MESSAGE_ISMRMRD_IMAGE))
             self.socket.send(head)
             self.socket.send(constants.MrdMessageAttribLength.pack(len(attribute)))
             self.socket.send(attribute)
             self.socket.send(imageData)
+            self.sentImages += 1
 
     def read_image(self):
         self.recvImages += 1
