@@ -21,7 +21,7 @@ def main(args):
     # Trap signal interrupts (e.g. ctrl+c, SIGTERM) and gracefully stop
     def handle_signals(signum, frame):
         print("Received signal interrupt -- stopping server")
-        client.socket.close()
+        client.send_socket.close()
         sys.exit(0)
 
     signal.signal(signal.SIGTERM, handle_signals)

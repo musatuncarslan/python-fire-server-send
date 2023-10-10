@@ -8,4 +8,4 @@
 #           for example 0.1 stands for 100 miliseconds delay between each image file
 #           for example for a dataset with 56 images per volume with 1 seconds per volume (56 images per second), d should be 1/56
 
-sudo docker run --rm -it -v /tmp/save:/tmp/save python-fire-server:send -v -H "172.17.0.1" -p 9002 -l ./log/python-ismrmrd-server.log -f /tmp/save/measurement-20231002T110706.hdf5 -d 0.1
+sudo docker run --rm -it -v ./save:/opt/code/python-fire-server-base/save -v ./logs:/opt/code/python-fire-server-base/logs python-fire-server:send -v -H "172.17.0.1" -p 9002 -l ./logs/python-ismrmrd-server.log -f ./save/measurement-20231010T155525.hdf5 -d 0.017

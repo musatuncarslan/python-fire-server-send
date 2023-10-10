@@ -5,7 +5,7 @@ ENV  TZ=America/Chicago
 
 # Python Dependencies from the requirements.txt file
 WORKDIR /usr/local/lib/
-COPY requirements.txt ./
+COPY ../requirements.txt ./
 
 RUN pip install --no-cache-dir --upgrade pip \
   && pip install --no-cache-dir -r requirements.txt

@@ -22,16 +22,16 @@ class Client:
 
         self.delay = args.delay
         self.senddatafile = args.senddatafile
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.send_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         try:
-            self.socket.connect((args.host, args.port))
+            self.send_socket.connect((args.host, args.port))
         except Exception as e:
             logging.exception(e)
 
     def serve(self):
         logging.debug("Connecting... ")
-        self.handle(self.socket)
+        self.handle(self.send_socket)
 
     def handle(self, sock):
         try:
@@ -58,7 +58,7 @@ class Client:
             except:
                 pass
             self.hf.close()
-            logging.info("\tData at %s is sent to: %s:%d", self.senddatafile, self.socket.getsockname()[0], self.socket.getsockname()[1])
+            logging.info("\tData at %s is sent from: %s:%d", self.senddatafile, self.send_socket.getsockname()[0], self.send_socket.getsockname()[1])
             sock.close()
             logging.info("\tSocket closed")
             # Dataset may not be closed properly if a close message is not received
