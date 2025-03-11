@@ -65,10 +65,7 @@ if __name__ == '__main__':
 
     if args.senddatafile:
         print("Sending  file: ", args.senddatafile)
-
-        if not os.path.exists(os.path.dirname(args.senddatafile)):
-            os.makedirs(os.path.dirname(args.senddatafile))
-
+        
         logging.basicConfig(filename=args.senddatafile, format=fmt, level=logging.WARNING)
     else:
         print("No data folder provided")
