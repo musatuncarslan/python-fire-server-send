@@ -15,7 +15,7 @@
                 "-H", "127.0.0.1",
                 "-p", "9002",
                 "-l", "./logs/python-ismrmrd-send.log",
-                "-f", "measurement-20231010T222230.hdf5",
+                "-f", "./send/measurement-20231010T222230.hdf5",
                 "-d", "0.1",
             ],
 
